@@ -52,7 +52,7 @@ name: CI for Microservices
 on:
   push:
     branches:
-      - main  # Укажите вашу основную ветку
+      - main
   pull_request:
     branches:
       - main
