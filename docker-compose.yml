@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  api_gateway:
+    build: ./api_gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - user_management_service
+      - book_management_service
+      - borrowing_management_service
+      - analytics_service
+    networks:
+      - microservices-network  
+
+  user_management_service:
+    build: ./user_management_service
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgres://postgres:1313@postgres:5432/library
+    depends_on:
+      - postgres
+    networks:
+      - microservices-network  
+
+  book_management_service:
+    build: ./book_management_service
+    ports:
+      - "8002:8000"
+    environment:
+      - DATABASE_URL=postgres://postgres:1313@postgres:5432/library
+    depends_on:
+      - postgres
+    networks:
+      - microservices-network  
+
+  borrowing_management_service:
+    build: ./borrowing_management_service
+    ports:
+      - "8003:8000"
+    environment:
+      - DATABASE_URL=postgres://postgres:1313@postgres:5432/library
+    depends_on:
+      - postgres
+    networks:
+      - microservices-network  
+
+  analytics_service:
+    build: ./analytics_service
+    ports:
+      - "8004:8000"
+    environment:
+      - DATABASE_URL=postgres://postgres:1313@postgres:5432/library
+    depends_on:
+      - postgres
+    networks:
+      - microservices-network  
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1313
+      POSTGRES_DB: library
+    ports:
+      - "5432:5432"
+    networks:
+      - microservices-network  
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - microservices-network  
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - microservices-network  
+
+volumes:
+  grafana-storage:
+  
+networks:
+  microservices-network:
+    driver: bridge

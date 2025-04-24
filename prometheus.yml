@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'django'
+    static_configs:
+      - targets: [
+                  'api_gateway:8000',
+                   'user_management_service:8001', 
+                  'book_management_service:8002', 
+                  'borrowing_management_service:8003', 
+                  'analytics_service:8004',
+]

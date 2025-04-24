@@ -1,0 +1,114 @@
+name: CI for Microservices
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 1313
+          POSTGRES_DB: library
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        pip install -r api_gateway/requirements.txt
+        pip install -r user_management_service/requirements.txt
+        pip install -r book_management_service/requirements.txt
+        pip install -r borrowing_management_service/requirements.txt
+        pip install -r analytics_service/requirements.txt
+
+
+
+
+name: CI for Microservices
+
+on:
+  push:
+    branches:
+      - main  # Укажите вашу основную ветку
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 1313
+          POSTGRES_DB: library
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      prometheus:
+        image: prom/prometheus
+        ports:
+          - 9090:9090
+        volumes:
+          - ./prometheus.yml:/etc/prometheus/prometheus.yml
+        networks:
+          - microservices-network
+      
+      grafana:
+        image: grafana/grafana
+        ports:
+          - 3000:3000
+        environment:
+          GF_SECURITY_ADMIN_PASSWORD: admin 
+        networks:
+          - microservices-network
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        pip install -r api_gateway/requirements.txt
+        pip install -r user_management_service/requirements.txt
+        pip install -r book_management_service/requirements.txt
+        pip install -r borrowing_management_service/requirements.txt
+        pip install -r analytics_service/requirements.txt
+
+          
